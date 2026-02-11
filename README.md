@@ -8,16 +8,19 @@ This project automates personal financial organization using n8n to orchestrate 
 
 
 ⚙️ How It Works
+
 The n8n workflow executes the following steps:
 
 
 1️⃣ Automatic Upload
+
 Bank statements (CSV/PDF) are sent to a specific folder in Google Drive
 
 n8n monitors the folder and triggers the workflow automatically
 
 
 2️⃣ Data Processing
+
 File is downloaded
 
 Data extraction and cleaning
@@ -28,12 +31,14 @@ Information standardization
 
 
 3️⃣ Structured Output
+
 Processed data is automatically appended to a Google Sheets spreadsheet
 
 Each transaction occupies one row with organized columns
 
 
 4️⃣ Real-Time Control
+
 The spreadsheet uses formulas to automatically calculate:
 
 Total monthly spending
@@ -44,6 +49,7 @@ Projections and dynamic adjustments as new expenses are recorded
 
 
 🧰 Tech Stack
+
 n8n – Workflow automation and orchestration
 
 Google Drive API – File storage and organization
