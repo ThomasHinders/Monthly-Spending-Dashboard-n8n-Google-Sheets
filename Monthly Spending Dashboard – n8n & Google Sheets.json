@@ -1,0 +1,508 @@
+{
+  "name": "Monthly Spending Dashboard – n8n & Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        -128
+      ],
+      "id": "2eecd0cf-9639-4730-b2b4-68894de3b354",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SeDKff5pNeJnEqRm",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a599ad11-2837-4130-886f-13bfe8bb2061",
+              "leftValue": "={{ $('Gmail Trigger').item.binary }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "58a6233b-b838-4edc-9a91-9ab44a9b3475",
+              "leftValue": "={{ $json.from.value[0].address }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        -128
+      ],
+      "id": "9b869def-c1f5-45e4-9afe-13b25eab4659",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        -128
+      ],
+      "id": "2127c021-75a0-407a-aac2-2a5b0c051450",
+      "name": "Gmail",
+      "webhookId": "ddfc1d89-4186-4f7d-b78d-c4c0fb997de8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SeDKff5pNeJnEqRm",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "={{ $binary.data }}",
+        "options": {
+          "joinPages": true
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        112
+      ],
+      "id": "beb1f615-b78d-49f3-9e96-aa4190833e66",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst rawText = items[0].json.text;\nconst lines = rawText.split('\\n');\n\nconst extractedData = {\n  periodo: {},\n  transacoes: []\n};\n\n// Processar linha por linha\nlet currentDate = null;\n\nfor (let i = 0; i < lines.length; i++) {\n  const line = lines[i].trim();\n  \n  // Período\n  if (line.startsWith('Período:')) {\n    const periodoMatch = line.match(/Período: (.+) a (.+)/);\n    if (periodoMatch) {\n      extractedData.periodo = {\n        inicio: periodoMatch[1].trim(),\n        fim: periodoMatch[2].trim()\n      };\n    }\n  }\n  \n  // Transações - detectar linhas com datas\n  else if (line.match(/\\d+ de (?:Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro) de \\d{4}/)) {\n    currentDate = line;\n  }\n  \n  // Linhas de transação (que começam com descrição e valores)\n  else if (currentDate && line && \n           !line.includes('Saldo do dia:') && \n           !line.includes('Fale com a gente') &&\n           line !== 'Valor Saldo por transação') {\n    \n    // Padrão para capturar transações\n    const transacaoMatch = line.match(/(.+?)\\s+([+-]?R\\$\\s?[\\d.,]+)\\s+([+-]?R\\$\\s?[\\d.,]+)/);\n    \n    if (transacaoMatch) {\n      extractedData.transacoes.push({\n        data: currentDate.split(' Saldo do dia:')[0].trim(),\n        descricao: transacaoMatch[1].trim(),\n        valor: transacaoMatch[2].trim(),\n      });\n    }\n  }\n}\n\nreturn [{ json: extractedData }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        112
+      ],
+      "id": "93e3d1be-1c9e-46f3-8440-05516de5125e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "transacoes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        112
+      ],
+      "id": "26f16643-5d31-4e2b-98a8-7cba90519604",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af34ad74-dcc1-4fac-8f50-f3b9c9a7cf98",
+              "name": "attachments",
+              "value": "={{ $('Gmail').item.binary.attachment_0}}",
+              "type": "object"
+            },
+            {
+              "id": "25a1c7b5-a1dd-4208-9b35-26e6a4a74202",
+              "name": "message_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        592,
+        -128
+      ],
+      "id": "3336b215-3cdb-490c-85bb-e3bceba7be94",
+      "name": "Retornar Extrato (PDF)"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "={{ $json.attachments }}",
+        "name": "Extrato",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1T4QaISTqQIGW0--_gF8DiIwGCmT9gryX",
+          "mode": "list",
+          "cachedResultName": "Attachments Teste",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1T4QaISTqQIGW0--_gF8DiIwGCmT9gryX"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        768,
+        -128
+      ],
+      "id": "a392b744-d63e-4e96-ba48-0093faed8079",
+      "name": "Upload Na Pasta",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ju1XhP5LjiSCP8ZG",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1Bo9pbLAhqH35il7HQ-PQbA9TZnbyW6NR",
+          "mode": "list",
+          "cachedResultName": "Extrato-30-01-2026-a-02-02-2026-PDF.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1Bo9pbLAhqH35il7HQ-PQbA9TZnbyW6NR/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        768,
+        112
+      ],
+      "id": "fb2ad565-e170-4bd8-9b14-1741abd3bea6",
+      "name": "Baixar Extrato",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ju1XhP5LjiSCP8ZG",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1a9ff64b-6b4c-4d6b-861c-2e31ed965b38",
+              "name": "Data",
+              "value": "={{ $json.data}}",
+              "type": "string"
+            },
+            {
+              "id": "6af7da19-4603-4fe7-94a1-5738500e3288",
+              "name": "Transação",
+              "value": "={{ $json.descricao }}",
+              "type": "string"
+            },
+            {
+              "id": "2b7e302b-3b60-477f-8bc7-24a0270c7b72",
+              "name": "Valor",
+              "value": "={{ $json.valor.replace('-', '').replaceAll('R$', '')}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1408,
+        112
+      ],
+      "id": "8046807e-399f-48ba-88a6-6a99f1df7343",
+      "name": "Mapeamento de Colunas"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1lcryMjbNWI_UkVkpg3U6olRJuhXHWOTSIGzarqjEylg",
+          "mode": "list",
+          "cachedResultName": "Extrato",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lcryMjbNWI_UkVkpg3U6olRJuhXHWOTSIGzarqjEylg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 64831129,
+          "mode": "list",
+          "cachedResultName": "Extrato",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lcryMjbNWI_UkVkpg3U6olRJuhXHWOTSIGzarqjEylg/edit#gid=64831129"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $json.Data }}",
+            "Transação": "={{ $json['Transação'] }}",
+            "Valor": "={{ $json.Valor.replaceAll(\",\", '.') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Transação",
+              "displayName": "Transação",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Valor",
+              "displayName": "Valor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1584,
+        112
+      ],
+      "id": "7f0c9118-494c-40f3-9bb1-71d7489ac369",
+      "name": "Envio de Dados ao Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XfqNu73t6udoTvmJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Envio de Extrato para Pasta no Google Drive",
+        "height": 400,
+        "width": 976,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -336
+      ],
+      "typeVersion": 1,
+      "id": "ea4e3b90-8dc2-47fc-9d46-b67601f51c57",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Envio de Informações do Extrato para Planilha de Controle Financeiro\n",
+        "height": 240,
+        "width": 1008,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "14bb9c43-e1c5-4a7b-adf5-7f73de3d66ce",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Retornar Extrato (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Mapeamento de Colunas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retornar Extrato (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Upload Na Pasta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Na Pasta": {
+      "main": [
+        [
+          {
+            "node": "Baixar Extrato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixar Extrato": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeamento de Colunas": {
+      "main": [
+        [
+          {
+            "node": "Envio de Dados ao Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "bf129a7e-2dcb-4fda-8cbf-d527929eeffd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "78f9290337f0248ef3b0cabe5a1daea83d2d1ddb458e0d5be58b4f5bc77b27c7"
+  },
+  "id": "aGAAX2EnAjdiUFGu",
+  "tags": []
+}
