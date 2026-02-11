@@ -26,8 +26,8 @@
       "name": "Gmail Trigger",
       "credentials": {
         "gmailOAuth2": {
-          "id": "SeDKff5pNeJnEqRm",
-          "name": "Gmail account"
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_GMAIL_ACCOUNT"
         }
       }
     },
@@ -54,7 +54,7 @@
             {
               "id": "58a6233b-b838-4edc-9a91-9ab44a9b3475",
               "leftValue": "={{ $json.from.value[0].address }}",
-              "rightValue": "=",
+              "rightValue": "YOUR_BANK_EMAIL@example.com",
               "operator": {
                 "type": "string",
                 "operation": "equals"
@@ -91,11 +91,11 @@
       ],
       "id": "2127c021-75a0-407a-aac2-2a5b0c051450",
       "name": "Gmail",
-      "webhookId": "ddfc1d89-4186-4f7d-b78d-c4c0fb997de8",
+      "webhookId": "YOUR_WEBHOOK_ID",
       "credentials": {
         "gmailOAuth2": {
-          "id": "SeDKff5pNeJnEqRm",
-          "name": "Gmail account"
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_GMAIL_ACCOUNT"
         }
       }
     },
@@ -175,20 +175,20 @@
     {
       "parameters": {
         "inputDataFieldName": "={{ $json.attachments }}",
-        "name": "Extrato",
+        "name": "YOUR_FILE_NAME",
         "driveId": {
           "__rl": true,
-          "value": "My Drive",
+          "value": "YOUR_DRIVE_ID",
           "mode": "list",
-          "cachedResultName": "My Drive",
-          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+          "cachedResultName": "YOUR_DRIVE_NAME",
+          "cachedResultUrl": "https://drive.google.com/drive/YOUR_DRIVE"
         },
         "folderId": {
           "__rl": true,
-          "value": "1T4QaISTqQIGW0--_gF8DiIwGCmT9gryX",
+          "value": "YOUR_FOLDER_ID",
           "mode": "list",
-          "cachedResultName": "Attachments Teste",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/1T4QaISTqQIGW0--_gF8DiIwGCmT9gryX"
+          "cachedResultName": "YOUR_FOLDER_NAME",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_FOLDER_ID"
         },
         "options": {}
       },
@@ -202,8 +202,8 @@
       "name": "Upload Na Pasta",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "ju1XhP5LjiSCP8ZG",
-          "name": "Google Drive account"
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DRIVE_ACCOUNT"
         }
       }
     },
@@ -212,10 +212,10 @@
         "operation": "download",
         "fileId": {
           "__rl": true,
-          "value": "1Bo9pbLAhqH35il7HQ-PQbA9TZnbyW6NR",
+          "value": "YOUR_FILE_ID",
           "mode": "list",
-          "cachedResultName": "Extrato-30-01-2026-a-02-02-2026-PDF.pdf",
-          "cachedResultUrl": "https://drive.google.com/file/d/1Bo9pbLAhqH35il7HQ-PQbA9TZnbyW6NR/view?usp=drivesdk"
+          "cachedResultName": "YOUR_FILE_NAME.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/YOUR_FILE_ID/view?usp=drivesdk"
         },
         "options": {}
       },
@@ -229,8 +229,8 @@
       "name": "Baixar Extrato",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "ju1XhP5LjiSCP8ZG",
-          "name": "Google Drive account"
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_DRIVE_ACCOUNT"
         }
       }
     },
@@ -274,17 +274,17 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1lcryMjbNWI_UkVkpg3U6olRJuhXHWOTSIGzarqjEylg",
+          "value": "YOUR_SPREADSHEET_ID",
           "mode": "list",
-          "cachedResultName": "Extrato",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lcryMjbNWI_UkVkpg3U6olRJuhXHWOTSIGzarqjEylg/edit?usp=drivesdk"
+          "cachedResultName": "YOUR_SPREADSHEET_NAME",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
-          "value": 64831129,
+          "value": "YOUR_SHEET_GID",
           "mode": "list",
-          "cachedResultName": "Extrato",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lcryMjbNWI_UkVkpg3U6olRJuhXHWOTSIGzarqjEylg/edit#gid=64831129"
+          "cachedResultName": "YOUR_SHEET_NAME",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit#gid=YOUR_SHEET_GID"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -341,8 +341,8 @@
       "name": "Envio de Dados ao Sheets",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "XfqNu73t6udoTvmJ",
-          "name": "Google Sheets account"
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_SHEETS_ACCOUNT"
         }
       }
     },
@@ -498,11 +498,11 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "bf129a7e-2dcb-4fda-8cbf-d527929eeffd",
+  "versionId": "YOUR_VERSION_ID",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "78f9290337f0248ef3b0cabe5a1daea83d2d1ddb458e0d5be58b4f5bc77b27c7"
+    "instanceId": "YOUR_INSTANCE_ID"
   },
-  "id": "aGAAX2EnAjdiUFGu",
+  "id": "YOUR_WORKFLOW_ID",
   "tags": []
 }
