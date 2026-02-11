@@ -1,6 +1,7 @@
 # Monthly-Spending-Dashboard-n8n-Google-Sheets
 
 📌 About The Project
+
 This project automates personal financial organization using n8n to orchestrate a complete bank statement processing workflow. The pipeline receives CSV/PDF files, processes the data, structures it in Google Sheets, and organizes files by month in Google Drive.
 
 ✅ Fully automated • ✅ Structured data • ✅ Real-time financial control
